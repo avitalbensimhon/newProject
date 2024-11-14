@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using projectAvital.model;
+using System;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -9,51 +10,67 @@ namespace projectAvital.Controllers
     [ApiController]
     public class GuideController : ControllerBase
     {
-        private static List<Guide> guides = new List<Guide> { new Guide { id = "1", name = "avital",status=true } };
+        Datacontext _context = new Datacontext();
         // GET: api/<GuideController>
-        public GuideController()
+        public GuideController(Datacontext context)
         {
-            
+            _context = context;
         }
         [HttpGet]
         public IEnumerable<Guide> Get()
         {
-            return guides;
+            return _context.guides;
         }
 
         // GET api/<GuideController>/5
         [HttpGet("{id}")]
-        public Guide Get(int id)
+        public ActionResult Get(string id)
         {
-            var index = guides.FindIndex(e => e.id.Equals(id));
-            if(index != -1)
-                return guides[index];
-            return null;
+            var index = _context.guides.FindIndex(e => e.id.Equals(id));
+            if (index != -1)
+            {
+                return Ok(_context.guides[index]);
+            }
+
+            return NotFound(null);
         }
 
         // POST api/<GuideController>
         [HttpPost]
         public Guide Post([FromBody] Guide newGuide)
         {
-            guides.Add(newGuide);
+            _context.guides.Add(newGuide);
             return newGuide;
         }
 
         // PUT api/<GuideController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Guide guide)
+        public ActionResult Put(string id, [FromBody] Guide guide) 
         {
-            var index = guides.FindIndex(e => e.id.Equals(id));
-            guides[index].id=guide.id;
-            guides[index].name=guide.name;
+            var index = _context.guides.FindIndex(e => e.id.Equals(id));
+            if (index != -1)
+            { 
+                _context.guides[index].name=guide.name;
+                _context.guides[index].id = guide.id;
+                return Ok(guide);
+            }
+
+            return NotFound();
         }
 
         // DELETE api/<GuideController>/5
         [HttpDelete("{id}")]
-        public void ChangeStatus(int id)
+        public ActionResult ChangeStatus(string id)
         {
-            var index = guides.FindIndex(e => e.id.Equals(id));
-            guides[index].status = false;
+            var index = _context.guides.FindIndex(e => e.id.Equals(id));
+            if (index != -1)
+            {
+                _context.guides[index].status = false;
+                return Ok(id);
+            }
+
+            return NotFound();
+            
         }
     }
 }

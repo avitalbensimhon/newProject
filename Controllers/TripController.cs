@@ -10,58 +10,65 @@ namespace projectAvital.Controllers
     public class TripController : ControllerBase
     {
 
-        private static List<Trip> trips = new List<Trip> { new Trip { code = "123", location = "netivot", date = DateTime.Today, numRegisteres = 12, idGuide = "1" } };
+        Datacontext _context=new Datacontext();
         // GET: api/<TripController>
-        public TripController()
+        public TripController(Datacontext context)
         {
-            
+            _context = context;
         }
         [HttpGet]
         public IEnumerable<Trip> Get()
         {
-            return trips;
+            return _context.trips;
         }
 
         // GET api/<TripController>/5
         [HttpGet("{id}")]
-        public Trip Get(string code)
+        public ActionResult Get(string code)
         {
 
-            var index = trips.FindIndex(e => e.code.Equals(code));
+            var index = _context.trips.FindIndex(e => e.code.Equals(code));
             if (index != -1)
-                return trips[index];
-            return null;
+                return Ok(_context.trips[index]);
+            return NotFound( null);
         }
 
         // POST api/<TripController>
         [HttpPost]
         public Trip Post([FromBody] Trip newTrip)
         {
-            trips.Add(newTrip);
+            _context.trips.Add(newTrip);
             return newTrip;
         }
 
         // PUT api/<TripController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Trip newTrip)
+        public ActionResult Put(string id, [FromBody] Trip newTrip)
         {
-            var index = trips.FindIndex(e => e.code.Equals(id));
-            trips[index].code= newTrip.code;
-            trips[index].location = newTrip.location;
-            trips[index].date = newTrip.date;
-            trips[index].numRegisteres = newTrip.numRegisteres;
-            trips[index].idGuide = newTrip.idGuide;
+            var index = _context.trips.FindIndex(e => e.code.Equals(id));
+            if (index != -1)
+            {
+                _context.trips[index].code = newTrip.code;
+                _context.trips[index].location = newTrip.location;
+                _context.trips[index].date = newTrip.date;
+                _context.trips[index].numRegisteres = newTrip.numRegisteres;
+                _context.trips[index].idGuide = newTrip.idGuide;
+                return Ok(_context.trips[index]);
+            }
+            return NotFound();
         }
 
         // DELETE api/<TripController>/5
         [HttpDelete("{id}")]
-        public void Delete(string id)
+        public  ActionResult Delete(string id)
         {
-            var index = trips.FindIndex(e => e.code.Equals(id));
+            var index = _context.trips.FindIndex(e => e.code.Equals(id));
             if (index != -1)
             {
-                trips.RemoveAt(index);
+                _context.trips.RemoveAt(index);
+                return Ok(_context.trips[index]);
             }
+            return NotFound();
         }
     }
 }
